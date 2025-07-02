@@ -30,6 +30,9 @@ def printHelp() {
 // SUBWORKFLOWS
 //
 
+include { MIXED_INPUT } from './assorted-sub-workflows/mixed_input/mixed_input.nf'
+include { MAGS_MAKER  } from './subworkflows/mags_maker.nf'
+
 
 /*
 ========================================================================================
@@ -43,4 +46,7 @@ workflow {
         exit 0
     }
 
+    MIXED_INPUT
+    | MAGS_MAKER
+    
 }
