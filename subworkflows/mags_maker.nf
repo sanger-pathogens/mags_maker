@@ -1,9 +1,9 @@
-include { METAWRAP_QC                    } from '../assorted-sub-workflows/generate_mags/metawrap_qc/metawrap_qc.nf'
-include { METAWRAP_ASSEMBLE              } from '../assorted-sub-workflows/generate_mags/assemble/assembly.nf'
-include { METAWRAP_BINNING               } from '../assorted-sub-workflows/generate_mags/binning/binning.nf'
-include { METAWRAP_BIN_REFINEMENT        } from '../assorted-sub-workflows/generate_mags/bin_refinement/bin_refinement.nf'
-include { METAWRAP_REASSEMBLY            } from '../assorted-sub-workflows/generate_mags/reassemble/reassembly.nf'
-include { REPORT_BINS                    } from '../assorted-sub-workflows/generate_mags/reporting/reporting.nf'
+include { METAWRAP_QC                    } from '../assorted-sub-workflows/mags_maker/metawrap_qc/metawrap_qc.nf'
+include { METAWRAP_ASSEMBLE              } from '../assorted-sub-workflows/mags_maker/assemble/assembly.nf'
+include { METAWRAP_BINNING               } from '../assorted-sub-workflows/mags_maker/binning/binning.nf'
+include { METAWRAP_BIN_REFINEMENT        } from '../assorted-sub-workflows/mags_maker/bin_refinement/bin_refinement.nf'
+include { METAWRAP_REASSEMBLY            } from '../assorted-sub-workflows/mags_maker/reassemble/reassembly.nf'
+include { REPORT_BINS                    } from '../assorted-sub-workflows/mags_maker/reporting/reporting.nf'
 
 workflow MAGS_MAKER {
     take:
