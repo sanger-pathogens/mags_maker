@@ -21,8 +21,7 @@ def printHelp() {
                                "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/assemble/schema.json",
                                "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/binning/schema.json",
                                "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/bin_refinement/schema.json",
-                               "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/reassemble/schema.json",
-                               "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/reporting/schema.json"
+                               "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/reassemble/schema.json"
                               ],
     params.monochrome_logs, log)
 }
