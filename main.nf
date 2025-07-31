@@ -16,7 +16,13 @@ NextflowTool.commandLineParams(workflow.commandLine, log, params.monochrome_logs
 
 def printHelp() {
     NextflowTool.help_message("${workflow.ProjectDir}/schema.json", 
-                               [],
+                              ["${workflow.ProjectDir}/assorted-sub-workflows/mixed_input/schema.json",
+                               "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/metawrap_qc/schema.json",
+                               "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/assemble/schema.json",
+                               "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/binning/schema.json",
+                               "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/bin_refinement/schema.json",
+                               "${workflow.ProjectDir}/assorted-sub-workflows/mags_maker/reassemble/schema.json"
+                              ],
     params.monochrome_logs, log)
 }
 
