@@ -48,8 +48,10 @@ Options:
 It is recommended to use the dedicated the farm module `manifest_generator`:
 
 ```
+
 module load manifest_generator
 generate_manifest.py -h # for script usage
+
 ```
 
 Alternatively, you can use the scripts bundled with this repository (deprecated).
@@ -57,13 +59,17 @@ Alternatively, you can use the scripts bundled with this repository (deprecated)
 If your data is stored in the PaM informatics pipeline system, you can use the following method:
 
 ```
+
 ./generate_manifest_from_lanes.sh -l <lanes_file>
+
 ```
 
 For more information, run:
 
 ```
+
 ./generate_manifest_from_lanes.sh -h
+
 ```
 
 If your data is not stored in the PaM informatics pipeline system, use the following method:
@@ -78,7 +84,9 @@ Obtain fastq paths:
 Generate manifest:
 
 ```
+
 ./generate_manifest.sh fastq_paths.txt
+
 ```
 
 This will output the manifest to `manifest.csv` which can be fed into the nextflow pipeline
@@ -88,6 +96,10 @@ This will output the manifest to `manifest.csv` which can be fed into the nextfl
 This pipeline relies on the following modules:
 
 ```
+
 ISG/singularity/3.6.4
 nextflow/22.10.6-5843
+
+```
+
 ```
