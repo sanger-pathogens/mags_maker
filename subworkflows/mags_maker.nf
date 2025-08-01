@@ -3,7 +3,9 @@ include { METAWRAP_ASSEMBLE              } from '../assorted-sub-workflows/mags_
 include { METAWRAP_BINNING               } from '../assorted-sub-workflows/mags_maker/binning/binning.nf'
 include { METAWRAP_BIN_REFINEMENT        } from '../assorted-sub-workflows/mags_maker/bin_refinement/bin_refinement.nf'
 include { METAWRAP_REASSEMBLY            } from '../assorted-sub-workflows/mags_maker/reassemble/reassembly.nf'
-include { REPORT_BINS                    } from '../assorted-sub-workflows/mags_maker/reporting/reporting.nf'
+include { PUBLISH_RESULTS; 
+          SUMMARY                        } from '../modules/report.nf'
+
 
 workflow MAGS_MAKER {
     take:
@@ -45,5 +47,11 @@ workflow MAGS_MAKER {
         | set { final_bins }
     }
 
-    REPORT_BINS(final_bins)
+    PUBLISH_RESULTS(final_bins)
+
+    final_bins
+    | map { meta, fastas, checkmReport -> [checkmReport]}
+    | collect
+    | SUMMARY
+
 }
