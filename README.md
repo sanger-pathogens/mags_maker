@@ -1,128 +1,105 @@
-# A template for Nextflow pipeline projects
+# Metagenomic assembly generation maker Nextflow Pipeline
 
-This template will provide a skeleton project for a Nextflow pipeline to be deployed to the farm, according to the
-conventions developed by the PaM Informatics team.
-
-[[_TOC_]]
-
-## Template contents
-
-### Nextflow Pipeline
-
-#### Wrapper script
-
-The `nextflow-template.sh` script provides a wrapper which will run the nextflow pipeline. This file must have the same
-name as the git project (plus `.sh`).
-
-#### "Hello world" nf pipeline.
-
-The `main.nf` and `nextflow.config` files are included to provide a "hello world" pipeline.
-
-#### Module template
-
-A module template file `module.template` is provided. This includes placeholders of the form `{{placeholder_tag}}`
-which are replaced in the deployed module file, according to the
-[CI/CD pipeline configuration](https://gitlab.internal.sanger.ac.uk/sanger-pathogens/templates/ci-templates/-/blob/master/README.md?ref_type=heads#farm22pipeline-deployyml)
-
-### CI/CD pipeline
-
-The standard PaM Informatics nextflow deployment pipeline is included from the
-[CI/CD templates repo](https://gitlab.internal.sanger.ac.uk/sanger-pathogens/templates/ci-templates/).
-
-This includes checks to ensure that the pre-commit hooks have been run, some standard GitLab security scans, and
-deployment on tagging.
-
-#### Deployment
-
-A test deployment will be done whenever a tag starting with `t` is created; a prod deployment is done whenever a
-semantic version tag staring with `v` (e.g. v1.2.3) is created.
-
-Note that the `.gitlab-ci.yml` file has a section that disables deployment, just to prevent the template itself from
-being deployed to the farm. This section is marked by a comment, and should be deleted when the template is used for a
-real project that is intended to be deployed.
-
-Deployment includes:
-
-- Copying the wrapper script to the farm, removing the `.sh`, and making it executable.
-- Using the module template to create a module file on the farm.
-- Copying all other files that do _not_ start with `.` to the farm; this will include the Nextflow files and any other scripts etc. that have been added to the project.
-
-The deployment path is the value of the `FARM_PATH` variable in the deployment job, which should already be set to
-the standard "custom install" path we use for dev/prod deployments.
-
-### Workflow
-
-Some standard files are provides to help with development workflow.
-
-#### .gitignore file
-
-This contains common patterns matching files that should be kept out of git. This can help to keep secrets out of the
-repo, as well as clutter created by IDEs etc. Remember that secrets pushed to git by mistake will remain in the
-history, even if deleted!
-
-#### pre-commit configuration
-
-A recommended pre-commit config is included (`.pre-commit.yml`).
-
-Pre-commit hooks run before each commit automatically. We use them to auto-format code and to check for linting errors,
-for example. W/o running the hooks, the CI pipeline may fail.
-
-First, install pre-commit command itself if you don't have it already:
+## Usage
 
 ```
-pip install pre-commit
+Usage:
+    nextflow run main.nf
+
+Options:
+    --manifest_of_reads / --manifest    Manifest containing paths to fastq files with headers ID,R1,R2. (mandatory)
+    --studyid                           Sequencing Study ID. [default: -1] (optional)
+    --runid                             Sequencing Run ID. [default: -1] (optional)
+    --laneid                            Sequencing Lane ID. [default: -1] (optional)
+    --plexid                            Sequencing Plex ID. [default: -1] (optional)
+    --target                            Marker of key data product likely to be of interest to customer. [default: 1] (optional)
+    --type                              File type. [default: cram] (optional)
+    --manifest_of_lanes                 Path to a manifest of iRODS search terms. [default: false] (optional)
+    --manifest_ena                      Path to a file of ENA accessions. [default: false] (optional)
+    --manifest                          Alias for --manifest_of_reads. (optional)
+    --publish_host_data                 Publish the reads determined to originate from the host organism. [default: false] (optional)
+    --bmtagger_db                       Path to directory containing BMTagger database. [default: /data/pam/software/bmtagger] (optional)
+    --bmtagger_host                     Reference genome version used for host read filtering. [default: T2T-CHM13v2.0] (optional)
+    --assembly_stats                    Generate assembly statistics. [default: false] (optional)
+    --min_contig                        Minimum threshold for contig size (kb). [default: 1500] (optional)
+    --fastspades                        Run SPAdes assembly module only. [default: null] (optional)
+    --lock_phred                        Set PHRED quality offset to 33 (SPAdes option). [default: null] (optional)
+    --metaspades                        Run metaSPAdes assembly. [default: true] (optional)
+    --megahit                           Run MEGAHIT assembly. [default: true] (optional)
+    --output_transposed                 Output transposed quast reports. [default: false] (optional)
+    --bin_seed                          Set a fixed seed for metaBAT1/2 and CONCOCT. [default: 1234] (optional)
+    --maxbin_markers                    Marker set for MaxBin. [default: 140] (optional)
+    --metabat1                          Run metaBAT1 binning instead of default metaBAT2. [default: null] (optional)
+    --keep_unbinned                     Keep unbinned contigs. [default: false] (optional)
+    --checkm1                           Assess quality using the CheckM tool rather than CheckM2. [default: false] (optional)
+    --checkm2_db                        Path to directory containing CheckM2 database. [default: /data/pam/software/checkm2_db/uniref100.KO.1.dmnd] (optional)
+    --min_completeness                  Minimum completeness threshold. [default: 50] (optional)
+    --max_contamination                 Maximum contamination threshold. [default: 5] (optional)
+    --remove_ambiguous_contigs          Remove ambiguous contigs instead of default assignment strategy. [default: false] (optional)
+    --strict_max                        Strict bin mismatch threshold. [default: 2] (optional)
+    --permissive_max                    Permissive bin mismatch threshold. [default: 5] (optional)
+    --lock_phred                        Set PHRED quality offset to 33 (SPAdes option). [default: false] (optional)
+    --monochrome_logs                   Should logs appear in plain ASCII. [default: false] (optional)
+
+## Generating manifests
+
+### On Wellcome Sanger Institute "farm" HPC
+
+It is recommended to use the dedicated the farm module `manifest_generator`:
+
 ```
 
-Then, run the following from the repository's folder to install the pre-commit hooks:
+module load manifest_generator
+generate_manifest.py -h # for script usage
 
 ```
-pre-commit install
-```
 
-##### .talismanrc file
+Alternatively, you can use the scripts bundled with this repository (deprecated).
 
-This file configures talisman, which is included in the pre-commit config. See the
-[talisman documentation](https://github.com/thoughtworks/talisman/blob/main/README.md) to see how to deal with false
-positives.
-
-##### Running pre-commit hooks manually
-
-[pre-commit provides various options](https://pre-commit.com/#pre-commit-run) for running hooks manually; for example,
-so run all hooks on all files:
+If your data is stored in the PaM informatics pipeline system, you can use the following method:
 
 ```
-pre-commit run --all-files
+
+./generate_manifest_from_lanes.sh -l <lanes_file>
+
 ```
 
-## How to use this template
+For more information, run:
 
-### Create a new project from the template
+```
 
-Start by creating a new project for your nextflow pipeline from the template
+./generate_manifest_from_lanes.sh -h
 
-- In gitlab, click the blue "New project button"
-- On the next screen, click on "Create from template"
-- On the next screen, select the "Group" tab
-- On the Group tab, next to "nextflow-template", click the blue "Use this template" button
-- Fill in the form on the next screen
+```
 
-### Required changes in the project
+If your data is not stored in the PaM informatics pipeline system, use the following method:
 
-The following manual changes _must_ be made in your new project
+### Step 1:
 
-- Rename `nextflow-template.sh` to match your enw project name (plus `.sh` on the end).
-- Edit the manifest in `nextflow.config` to replace the placeholder name, description etc.
-- In `.gitlab-ci.yml`, delete the section which disables the deployment (see the comments in this file to identify the section you must delete).
-- If you will be using python, uncomment the sections in `.pre-commit.yaml` for python-related hooks (see the comments in this file); and make corresponding changes in `.gitlab-ci.yml` to re-enable the jobs that check the python-related hooks (again, see the comments).
+Obtain fastq paths:
+`ls -d -1 <path>/*.fastq.gz > fastq_paths.txt`
 
-### Add your pipeline code
+### Step 2:
 
-When the steps above have been completed, you should have a working project that will deploy a module to the farm (test
-or prod, depending on the tag you use); but the pipeline provided will still be the "hello world" example.
+Generate manifest:
 
-You can now edit `main.nf` and `nextflow.config` to add a real pipeline, and add any additional scripts or other files
-that are needed. The standard CI/CD piepline will copy all files that do not start with a `.` to the farm; it can
-be configured easily to rename and change modes of file, and to make substitutions of text within files if required.
-See the [CI/CD pipeline documentation](https://gitlab.internal.sanger.ac.uk/sanger-pathogens/templates/ci-templates/-/blob/master/README.md?ref_type=heads#farm22pipeline-deployyml)
+```
 
-Remember that if additional executables are provided, these should be added to the `module.template` file.
+./generate_manifest.sh fastq_paths.txt
+
+```
+
+This will output the manifest to `manifest.csv` which can be fed into the nextflow pipeline
+
+## Dependencies
+
+This pipeline relies on the following modules:
+
+```
+
+ISG/singularity/3.6.4
+nextflow/22.10.6-5843
+
+```
+
+```
