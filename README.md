@@ -352,11 +352,10 @@ example*output
 Output folders are described in the following table:
 | folder | description |
 | --------- | --------------------------------------------------------- |
-| bin_merging | A log outputted per sample stating parameters used and the number of bins kept and discarded from each tool output when merging bins together  |
+| bin_merging | A log outputted per sample stating parameters used and the number of bins kept and discarded from each tool output when merging bins together |
 | metawrap_qc | Contains host reads (fastq.gz) (if `--publish_host_data` option is used), cleaned/host-removed sample reads (fastq.gz), as well as read_removal_statistics.csv generated during the metawrap qc step (if `--qc` option is used) |
 | <sample_id> | Contains the checkm1/checkm2 summary stats for each binning tool from bin refinement, the best bin assemblies after reassembly and the checkm1/checkm2 summary stats for the best bins chosen |
-| final_summary.tsv | Contains all samples checkm1/checkm2 summary stats for the best bins chosen|
-
+| final_summary.tsv | Contains all samples checkm1/checkm2 summary stats for the best bins chosen |
 
 ## Credits
 
