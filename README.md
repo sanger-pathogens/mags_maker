@@ -1,8 +1,31 @@
 # mags_maker
 
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.04.0-23aa62.svg?labelColor=000000)](https://www.nextflow.io/)
+[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
+[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
+
+[[_TOC_]]
+
 ## Introduction
 
-**mags_maker** is an adaption of the [generate_mags](https://gitlab.internal.sanger.ac.uk/sanger-pathogens/pipelines/team162/generate_mags/-/tree/main) nextflow pipeline that generates MAGs (Metagenome-Assembled Genomes). 
+**mags_maker** is an adaptation of the [generate_mags](https://gitlab.internal.sanger.ac.uk/sanger-pathogens/pipelines/team162/generate_mags/-/tree/main) nextflow pipeline that generates MAGs (Metagenome-Assembled Genomes), with additional functionalities summarised below.
+
+## Additional functionality to generate_mags
+
+Assembly Options:
+
+- Assemble metagenomic reads either by:
+  a) Using metaSPAdes and re-assemble using metaHIT
+  b) Assemble using only metaSPAdes
+  c) Assemble using only metaHIT
+
+Bin Refinement:
+
+- Refine MAG bins using either CheckM2 or CheckM
+
+Reporting:
+
+- A summary report is generated across of the samples at the end of the run
 
 ## Pipeline summary
 
@@ -26,7 +49,7 @@ There are 5 stages in this pipeline: QC, assembly, binning, bin refinement, bin 
      :warning: If using the read-made module, replace `nextflow run main.nf` with `mags_maker` in all subsequent commands.
 
 3. Start the pipeline  
-   For example input, please see [Generating a manifest](#generating-a-manifest).
+   For example inputs, please see [Generating a manifest](#generating-a-manifest).
 
    Example:
 
@@ -69,7 +92,7 @@ generate_manifest.py -h # for script usage
 ```
 
 ```
-Sequencing reads input parameters
+Sequencing reads input parameters:
 
 There are two ways of providing input reads, which can be combined
       1) through direct input of compressed fastq sequence reads files. This kind of input is passed by specifying the paths to the
@@ -127,39 +150,95 @@ Alternatively, the user can provide a CSV-format manifest listing a batch of suc
       --manifest_ena
             default: false
             Path to a manifest/file of ENA accessions (run, sample or study). Please also set the --accession_type to the appropriate accession type.
+
 -----------------------------------------------------------------
- Aliased options
+
+ Aliased options:
       --manifest
             default:
             Alias for --manifest_of_reads (optional)
+
 -----------------------------------------------------------------
- Quality Control Options
+
+ Irods extractor processing options:
+      --cleanup_intermediate_files_irods_extractor
+            default: false
+            delete intermediate CRAM files downloaded from IRODS in work/ folder
+      --preexisting_fastq_tag
+            default: raw_fastq
+            if the expected output fastq files exist in the folder named like this under the result folder for the sample e.g. in results/12345_1#67/raw_fastq/12345_1#67_1.fastq.gz,
+            then skip download and any further processing for this sample.
+      --split_sep_for_ID_from_fastq
+            default: _1.fastq
+            separator to recognise sample ID from preexisting file.
+      --lane_plex_sep
+            default: #
+            separator to build sample ID from runid, laneid and plexid. Defaults to '#', which is the iRODS-native syntax.
+      --save_method
+            default: nested
+            save output files in per sample folders (nested) or in one folder (flat)
+      --irods_subset_to_skip
+            default: phix
+            skip data items for which metadata field 'subset' is set to this value
+      --combine_same_id_crams
+            default: false
+            if retrieving read files representing subsets of the same source (files will share the same run, lane and plex IDs), should these files be combined into a 'total' subset i.e. reforming the source read file before subsetting by NPG processing.
+      --large_data
+            default: false
+            If the data is very large instead start from the week queue with more memory (10GB)
+      --read_type
+            default: Illumina
+            Platform the data you wish to receive was sequenced on Illumina|ont
+
+-----------------------------------------------------------------
+
+ General Options:
+      --manifest
+            default:
+            Manifest containing paths to fastq files with headers ID,R1,R2. (mandatory)
+      -- qc
+            default: metawrap
+            Skip metawrap QC step [options: metawrap|skip] (optional)
+      --checkm1
+            default: false
+            Assess quality using the CheckM tool rather than the default - CheckM2 (optional)
+      --skip_reassembly
+            default: false
+            Skip the reassembly process (optional)
+      --outdir
+            default: ./results
+            Directory to store pipeline output (optional)
+
+
+-----------------------------------------------------------------
+
+ Quality Control Options:
       -- publish_host_data
             default: false
-            Publish the reads determined to originate from the host organism
+            Publish the reads determined to originate from the host organism (optional)
       -- bmtagger_db
             default: /data/pam/software/bmtagger
-            Path to directory containing BMTagger database
+            Path to directory containing BMTagger database (optional)
       -- bmtagger_host
             default: T2T-CHM13v2.0
-            Reference genome version used for host read filtering
+            Reference genome version used for host read filtering (optional)
 
 -----------------------------------------------------------------
 
-Assembly Subworkflow Options
-    --assembly_stats            
-            default: false        
-            Generate assembly statistics. [default: false] (optional)
+Assembly Subworkflow Options:
+    --assembly_stats
+            default: false
+            Generate assembly statistics (optional)
     --min_contig
             default: 1500
             Minimum threshold for contig size (kb) (optional)
     --fastspades
-            default: null 
+            default: null
             Run SPAdes assembly module only (optional)
-    --lock_phred  
+    --lock_phred
             default: null
             Set PHRED quality offset to 33 (SPAdes option) (optional)
-    --metaspades                     
+    --metaspades
             default: true
             Run metaSPAdes assembly (optional)
     --megahit
@@ -168,126 +247,121 @@ Assembly Subworkflow Options
     --output_transposed
             default: false
             Output transposed quast reports (optional)
+
 -----------------------------------------------------------------
 
 Binning Subworkflow Options:
-
     --bin_seed
             default: 1234
             Set a fixed seed for metaBAT1/2 and CONCOCT (optional)
     --maxbin_markers
             default: 140
-            Marker set to choose from for MaxBin. 107 marker genes present in >95% of bacteria, or 40 marker gene sets that are universal among bacteria and archaea. (optional)
+            Marker set to choose from for MaxBin. 107 marker genes present in >95% of bacteria, or 40 marker gene sets that are universal among bacteria and archaea (optional)
     --metabat1
-            default: null                           
+            default: null
             Run metaBAT1 binning instead of default metaBAT2 (optional)
-    --keep_unbinned       
-            default: false              
-            Keep unbinned contigs. [default: false] (optional)
+    --keep_unbinned
+            default: false
+            Keep unbinned contigs (optional)
+
 -----------------------------------------------------------------
+
 Binning Refinement Subworkflow Options:
-    --checkm1
-            default: false 
-            Assess quality using the CheckM tool rather than the default - CheckM2 (optional)
     --checkm2_db
             default: /data/pam/software/checkm2_db/uniref100.KO.1.dmnd
             Path to directory containing CheckM2 database (optional)
     --min_completeness:
-            default: 50 
-            Minimum completeness threshold (%) 
+            default: 50
+            Minimum completeness threshold (%) (optional)
     --max_contamination:
             default: 5
-            Maximum contamination threshold (%)
-    -- remove_ambiguous_contigs  
+            Maximum contamination threshold (%) (optional)
+    --remove_ambiguous_contigs
             default: false
-            Dereplicate by removing ambiguous contigs rather than the default strategy of assigning them to the highest quality potential bin
+            Dereplicate by removing ambiguous contigs rather than the default strategy of assigning them to the highest quality potential bin (optional)
+
+-----------------------------------------------------------------
 
 Reassemble Subworkflow Options:
-
-    --strict_max 
+    --strict_max
             default: 2
             Strict bin mismatch threshold (optional)
     --permissive_max
-            default: 5 
+            default: 5
             Permissive bin mismatch threshold (optional)
     --min_contig
             default: 1500
-            help_text: Minimum threshold for contig size (kb).
+            help_text: Minimum threshold for contig size (kb) (optional)
     --min_completeness:
-            default: 50 
-            Minimum completeness threshold (%) 
+            default: 50
+            Minimum completeness threshold (%) (optional)
     --max_contamination:
             default: 5
-            Maximum contamination threshold (%)
+            Maximum contamination threshold (%) (optional)
     --checkm2_db
             default: /data/pam/software/checkm2_db/uniref100.KO.1.dmnd
             Path to directory containing CheckM2 database (optional)
-    --checkm1
-            default: false 
-            Assess quality using the CheckM tool rather than the default - CheckM2 (optional)
-   --lock_phred
+    --lock_phred
             default: false
             Set PHRED quality offset to 33 (SPAdes option) (optional)
 
-## Generating manifests
+-----------------------------------------------------------------
+```
 
-### On Wellcome Sanger Institute "farm" HPC
+## Output and intermediate file cleanup
 
-It is recommended to use the dedicated the farm module `manifest_generator`:
+By default, this pipeline will publish the results to a `results` folder, this can be changed using the `--outdir` argument.
+
+For instance, the output directory could look like:
 
 ```
 
-module load manifest_generator
-generate_manifest.py -h # for script usage
+example*output
+├── bin_merging
+│    ├── <sample_id>\_merge.log
+├── metawrap_qc
+│   ├── cleaned_reads
+│   │   ├── <sample_id>\_clean_1.fastq.gz
+│   │   ├── <sample_id>\_clean_2.fastq.gz
+│   │   ├── ...
+├── host_reads
+│   │   ├── <sample_id>\_host_1.fastq.gz
+│   │   ├── <sample_id>\_host_1.fastq.gz
+│   │   ├── ...
+│   ├── read_removal_statistics.csv
+├── pipeline_info
+│   ├── execution_report*<date*time>.html
+│   ├── execution_timeline*<date*time>.html
+│   ├── execution_trace*<date*time>.html
+├── <sample_id>
+│   ├── checkm1
+│   | ├── <bin_tool>\_summary.tsv
+│   ├── checkm2
+│   | ├── <bin_tool>\_summary.tsv
+│   | <sample_id>\_best_bins
+│   | ├── <length>*<sample*id>\_bin_1*<strict/permissive/origin>.fasta
+│   | ├── .....
+│   | ├── <sample*id>\_bin_N*<strict/permissive/origin>.fasta
+│   ├── <sample_id>\_best_bins_summary.tsv
+|   ├── quast
+│   | ├── transposed_report.tsv
+└── final_summary.tsv
 
 ```
 
-Alternatively, you can use the scripts bundled with this repository (deprecated).
+Output folders are described in the following table:
+| folder | description |
+| --------- | --------------------------------------------------------- |
+| bin_merging | A log outputted per sample stating parameters used and the number of bins kept and discarded from each tool output when merging bins together  |
+| metawrap_qc | Contains host reads (fastq.gz) (if `--publish_host_data` option is used), cleaned/host-removed sample reads (fastq.gz), as well as read_removal_statistics.csv generated during the metawrap qc step (if `--qc` option is used) |
+| <sample_id> | Contains the checkm1/checkm2 summary stats for each binning tool from bin refinement, the best bin assemblies after reassembly and the checkm1/checkm2 summary stats for the best bins chosen |
+| final_summary.tsv | Contains all samples checkm1/checkm2 summary stats for the best bins chosen|
 
-If your data is stored in the PaM informatics pipeline system, you can use the following method:
 
-```
+## Credits
 
-./generate_manifest_from_lanes.sh -l <lanes_file>
+This pipeline was originally designed as a reimplementation of metaWRAP (based on version 1.3.2; https://github.com/bxlab/metaWRAP). For further information please refer to the MetaWRAP paper: [MetaWRAP - a flexible pipeline for genome-resolved metagenomic data analysis](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0541-1)
 
-```
+## Support
 
-For more information, run:
-
-```
-
-./generate_manifest_from_lanes.sh -h
-
-```
-
-If your data is not stored in the PaM informatics pipeline system, use the following method:
-
-### Step 1:
-
-Obtain fastq paths:
-`ls -d -1 <path>/*.fastq.gz > fastq_paths.txt`
-
-### Step 2:
-
-Generate manifest:
-
-```
-
-./generate_manifest.sh fastq_paths.txt
-
-```
-
-This will output the manifest to `manifest.csv` which can be fed into the nextflow pipeline
-
-## Dependencies
-
-This pipeline relies on the following modules:
-
-```
-
-ISG/singularity/3.6.4
-nextflow/22.10.6-5843
-
-```
-
-```
+For further information or help, don't hesitate to get in touch via [pam-informatics@sanger.ac.uk](mailto:pam-informatics@sanger.ac.uk).
