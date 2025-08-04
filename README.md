@@ -16,9 +16,9 @@ Assembly Options:
 
 - Assemble metagenomic reads using one of the following options:
 
-      - Use both metaSPAdes and re-assemble with MEGAHIT
-      - Use only metaSPAdes for assembly
-      - Use only MEGAHIT for assembly
+  a) Use both metaSPAdes and re-assemble with MEGAHIT  
+  b) Use only metaSPAdes for assembly  
+  c) Use only MEGAHIT for assembly
 
 Bin Refinement Options:
 
