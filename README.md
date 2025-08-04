@@ -14,12 +14,13 @@
 
 Assembly Options:
 
-- Assemble metagenomic reads either by:
-  a) Using metaSPAdes and re-assemble using metaHIT
-  b) Assemble using only metaSPAdes
-  c) Assemble using only metaHIT
+- Assemble metagenomic reads using one of the following options:
 
-Bin Refinement:
+      - Use both metaSPAdes and re-assemble with MEGAHIT
+      - Use only metaSPAdes for assembly
+      - Use only MEGAHIT for assembly
+
+Bin Refinement Options:
 
 - Refine MAG bins using either CheckM2 or CheckM
 
@@ -29,7 +30,7 @@ Reporting:
 
 ## Pipeline summary
 
-There are 5 stages in this pipeline: QC, assembly, binning, bin refinement, bin reassembly and reporting.
+There are 6 stages in this pipeline: QC, assembly, binning, bin refinement, bin reassembly and reporting.
 
 ## Getting started
 
@@ -316,35 +317,32 @@ For instance, the output directory could look like:
 
 ```
 
-example*output
+example_output
 ├── bin_merging
-│    ├── <sample_id>\_merge.log
+│    ├── <sample_id>_merge.log
 ├── metawrap_qc
 │   ├── cleaned_reads
-│   │   ├── <sample_id>\_clean_1.fastq.gz
-│   │   ├── <sample_id>\_clean_2.fastq.gz
+│   │   ├── <sample_id>_clean_1.fastq.gz
+│   │   ├── <sample_id>_clean_2.fastq.gz
 │   │   ├── ...
-├── host_reads
-│   │   ├── <sample_id>\_host_1.fastq.gz
-│   │   ├── <sample_id>\_host_1.fastq.gz
+│   ├── host_reads
+│   │   ├── <sample_id>_host_1.fastq.gz
+│   │   ├── <sample_id>_host_1.fastq.gz
 │   │   ├── ...
 │   ├── read_removal_statistics.csv
-├── pipeline_info
-│   ├── execution_report*<date*time>.html
-│   ├── execution_timeline*<date*time>.html
-│   ├── execution_trace*<date*time>.html
 ├── <sample_id>
 │   ├── checkm1
-│   | ├── <bin_tool>\_summary.tsv
+│   │   ├── <bin_tool>_summary.tsv
+│   │   ├── ...
 │   ├── checkm2
-│   | ├── <bin_tool>\_summary.tsv
-│   | <sample_id>\_best_bins
-│   | ├── <length>*<sample*id>\_bin_1*<strict/permissive/origin>.fasta
-│   | ├── .....
-│   | ├── <sample*id>\_bin_N*<strict/permissive/origin>.fasta
-│   ├── <sample_id>\_best_bins_summary.tsv
-|   ├── quast
-│   | ├── transposed_report.tsv
+│   │   ├── <bin_tool>_summary.tsv
+│   │   ├── ...
+│   ├── <sample_id>_best_bins
+│   │   ├── <length>_<sample_id>_bin_1_<strict/permissive/origin>.fasta
+│   │   ├── ...
+│   ├── <sample_id>_best_bins_summary.tsv
+│   ├── quast
+│   │   ├── transposed_report.tsv
 └── final_summary.tsv
 
 ```
