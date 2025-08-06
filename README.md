@@ -16,9 +16,9 @@ Assembly Options:
 
 - Assemble metagenomic reads using one of the following options:
 
-  a) Use both metaSPAdes and re-assemble with MEGAHIT  
-  b) Use only metaSPAdes for assembly  
-  c) Use only MEGAHIT for assembly
+  a) Use both metaSPAdes and re-assemble with MEGAHIT (default)
+  b) Use only metaSPAdes for assembly (if `--megahit false`)
+  c) Use only MEGAHIT for assembly (if `--metaspades false`)
 
 Bin Refinement Options:
 
@@ -47,7 +47,7 @@ There are 6 stages in this pipeline: QC, assembly, binning, bin refinement, bin 
    - Clone this repository using `git clone --recurse-submodules`  
      OR
    - Use ready-made module: `module load mags_maker`  
-     :warning: If using the read-made module, replace `nextflow run main.nf` with `mags_maker` in all subsequent commands.
+     :warning: If using the ready-made module, replace `nextflow run main.nf` with `mags_maker` in all subsequent commands.
 
 3. Start the pipeline  
    For example inputs, please see [Generating a manifest](#generating-a-manifest).
@@ -91,6 +91,8 @@ It is recommended to use the dedicated the farm module `manifest_generator`:
 module load manifest_generator
 generate_manifest.py -h # for script usage
 ```
+
+## Usage
 
 ```
 Sequencing reads input parameters:
@@ -350,7 +352,7 @@ example_output
 Output folders are described in the following table:
 | folder | description |
 | --------- | --------------------------------------------------------- |
-| bin_merging | A log outputted per sample stating parameters used and the number of bins kept and discarded from each tool output when merging bins together |
+| bin_merging | Contains a log per sample stating parameters used and number of bins kept/discarded from each tool output when merging bins together |
 | metawrap_qc | Contains host reads (fastq.gz) (if `--publish_host_data` option is used), cleaned/host-removed sample reads (fastq.gz), as well as read_removal_statistics.csv generated during the metawrap qc step (if `--qc` option is used) |
 | <sample_id> | Contains the checkm1/checkm2 summary stats for each binning tool from bin refinement, the best bin assemblies after reassembly and the checkm1/checkm2 summary stats for the best bins chosen |
 | final_summary.tsv | Contains all samples checkm1/checkm2 summary stats for the best bins chosen |
