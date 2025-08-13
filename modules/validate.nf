@@ -62,7 +62,7 @@ def validate_contiglen(param_option, param) {
     int value = param as int 
     
     if (param <= minlength) {
-        log.error("The Metabat1 and Metabat2 require a miniumn contig length of at least 1500 while you provided a length of '${param}'")
+        log.error("Metabat1 and Metabat2 require a minimum contig length of at least 1500, but you provided a length of '${param}'")
         return 1
     }
     return 0
