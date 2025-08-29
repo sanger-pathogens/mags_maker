@@ -56,12 +56,11 @@ def validate_number_param(param_option, param) {
 /*
 Functions Unique to mags_maker 
 */
-def validate_contiglen(param_option, param) {
+def validate_contiglen(param_option, param, binnername, minlength) {
 
-    int minlength = 1499
     int value = param as int 
-    if (param <= minlength) {
-        log.error("Metabat1 and Metabat2 require a minimum contig length of at least 1500, but you provided a length of '${param}'")
+    if (param < minlength) {
+        log.error("${binnername} require a minimum contig length of at least ${minlength}, but you provided a length of '${param}' to option '${param_option}'")
         return 1
     }
     return 0
@@ -70,7 +69,12 @@ def validate_contiglen(param_option, param) {
 def validate_parameters() {
     def errors = 0
 
-    errors += validate_contiglen("--metabat_min_contig", params.metabat_min_contig)
+    int minlength_metabat = 1500 // a software requirement
+    errors += validate_contiglen("--metabat_min_contig", params.metabat_min_contig, "Metabat1 and Metabat2", minlength_metabat)
+    int minlength_concoct = 500 // not a software requirement, but the minimum it's been tested with; cf. https://academic.oup.com/bioinformatics/article/32/4/605/1744462
+    errors += validate_contiglen("--concoct_min_contig", params.concoct_min_contig, "Concoct", minlength_concoct)
+    int minlength_maxbin2 = 500 // not a software requirement, but the minimum it's been tested with; cf. https://academic.oup.com/bioinformatics/article/32/4/605/1744462
+    errors += validate_contiglen("--maxbin2_min_contig", params.maxbin2_min_contig, "Maxbin2", minlength_maxbin2)
 
     if (errors > 0) {
         log.error(String.format("%d errors detected", errors))
