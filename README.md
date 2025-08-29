@@ -364,3 +364,4 @@ This pipeline was originally designed as a reimplementation of metaWRAP (based o
 ## Support
 
 For further information or help, don't hesitate to get in touch via [pam-informatics@sanger.ac.uk](mailto:pam-informatics@sanger.ac.uk).
+
