@@ -357,6 +357,8 @@ Output folders are described in the following table:
 | <sample_id> | Contains the checkm1/checkm2 summary stats for each binning tool from bin refinement, the best bin assemblies after reassembly and the checkm1/checkm2 summary stats for the best bins chosen |
 | final_summary.tsv | Contains all samples checkm1/checkm2 summary stats for the best bins chosen |
 
+Please note the full set of bins will not be outputted from this pipeline. Only the best quality bins will be published which occurs during the CHOOSE_BEST_BIN process.
+
 ## Credits
 
 This pipeline was originally designed as a reimplementation of metaWRAP (based on version 1.3.2; https://github.com/bxlab/metaWRAP). For further information please refer to the MetaWRAP paper: [MetaWRAP - a flexible pipeline for genome-resolved metagenomic data analysis](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0541-1)
