@@ -37,6 +37,6 @@ process SUMMARY {
     script:
     summary = "final_summary.tsv"
     """
-    head -n 1 001.tsv > ${summary} && tail -n +2 -q *.tsv >> ${summary}
+    head -n 1 001.tsv > ${summary} && tail -n +2 -q [0-9][0-9][0-9].tsv >> ${summary}
     """
 }
