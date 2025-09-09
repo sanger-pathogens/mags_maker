@@ -7,16 +7,8 @@ include { PUBLISH_RESULTS;
           SUMMARY                        } from '../modules/report.nf'
 
 /*
-Helper Scripts
-*/
-
-include { validate_parameters } from '../modules/validate.nf'
-
-/*
 Main workflow
 */
-
-validate_parameters()
 
 workflow MAGS_MAKER {
     take:

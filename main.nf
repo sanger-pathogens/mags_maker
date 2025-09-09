@@ -39,6 +39,11 @@ def printHelp() {
 include { MIXED_INPUT } from './assorted-sub-workflows/mixed_input/mixed_input.nf'
 include { MAGS_MAKER  } from './subworkflows/mags_maker.nf'
 
+/*
+Helper Scripts
+*/
+
+include { validate_parameters } from '../modules/validate.nf'
 
 /*
 ========================================================================================
@@ -51,6 +56,9 @@ workflow {
         printHelp()
         exit 0
     }
+
+    validate_parameters()
+
 
     MIXED_INPUT
     | MAGS_MAKER
