@@ -43,7 +43,7 @@ include { MAGS_MAKER  } from './subworkflows/mags_maker.nf'
 Helper Scripts
 */
 
-include { validate_parameters } from '../modules/validate.nf'
+include { validate_parameters } from './modules/validate.nf'
 
 /*
 ========================================================================================
