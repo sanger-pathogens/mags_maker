@@ -67,7 +67,7 @@ def validate_contiglen(param_option, param, binnername, minlength) {
 }
 
 def validate_parameters() {
-    def errors = 0
+    int errors = 0
 
     int minlength_metabat = 1500 // a software requirement
     errors += validate_contiglen("--metabat_min_contig", params.metabat_min_contig, "Metabat1 and Metabat2", minlength_metabat)
