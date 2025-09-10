@@ -68,7 +68,7 @@ def validate_contiglen(param_option, param, binnername, minlength) {
 
 def validate_parameters() {
     int errors = 0
-
+    println "start parameter validation"
     int minlength_metabat = 1500 // a software requirement
     errors += validate_contiglen("--metabat_min_contig", params.metabat_min_contig, "Metabat1 and Metabat2", minlength_metabat)
     int minlength_concoct = 500 // not a software requirement, but the minimum it's been tested with; cf. https://academic.oup.com/bioinformatics/article/32/4/605/1744462
@@ -80,4 +80,5 @@ def validate_parameters() {
         log.error(String.format("%d errors detected", errors))
         exit 1
     }
+    println "end parameter validation"
 }
