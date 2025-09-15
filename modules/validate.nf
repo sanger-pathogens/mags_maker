@@ -59,7 +59,7 @@ Functions Unique to mags_maker
 def validate_contiglen(param_option, param, binnername, minlength) {
 
     int value = param as int 
-    if (param < minlength) {
+    if (value < minlength) {
         log.error("${binnername} require a minimum contig length of at least ${minlength}, but you provided a length of '${param}' to option '${param_option}'")
         return 1
     }
