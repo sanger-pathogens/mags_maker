@@ -58,9 +58,19 @@ Functions Unique to mags_maker
 */
 def validate_contiglen(param_option, param, binnername, minlength) {
 
-    int value = param as int 
-    if (value < minlength) {
-        log.error("${binnername} require a minimum contig length of at least ${minlength}, but you provided a length of '${param}' to option '${param_option}'")
+    errorstringlength1 = "${binnername} require a minimum contig length of at least ${minlength}"
+    errorstringlength2 = "${errorstringlength1}, but you provided a length of '${param}' to option '${param_option}'."
+    errorstringtype = "The option '${param_option}' only takes a numerical (positive integer) value, but was provided '${param}'.\nAlso, please note that ${errorstringlength1}."
+
+    String valuestr = "${param}"
+    if (valuestr.isInteger()) {
+        int valueint = param as Integer
+        if (valueint < minlength) {
+            log.error(errorstringlength2)
+            return 1
+        }
+    } else {
+        log.error(errorstringtype)
         return 1
     }
     return 0
