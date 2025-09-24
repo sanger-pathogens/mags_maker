@@ -6,6 +6,9 @@ include { METAWRAP_REASSEMBLY            } from '../assorted-sub-workflows/mags_
 include { PUBLISH_RESULTS; 
           SUMMARY                        } from '../modules/report.nf'
 
+/*
+Main workflow
+*/
 
 workflow MAGS_MAKER {
     take:
