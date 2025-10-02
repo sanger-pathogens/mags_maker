@@ -260,10 +260,10 @@ Binning Subworkflow Options:
     --bin_seed
             default: 1234
             Set a fixed seed for metaBAT1/2 and CONCOCT (optional)
-    --maxbin2_min_contig 
+    --maxbin2_min_contig
             default: 1000
             Minimum threshold for contig size (kb) for MaxBin2
-    --concoct_min_contig 
+    --concoct_min_contig
             default: 1000
             Minimum threshold for contig size (kb) for concoct
     --metabat_min_contig
@@ -375,11 +375,10 @@ Please note the full set of bins will not be outputted from this pipeline. Only 
 
 `--lock_phred`:
 If using a sra-lite format reads, or other formats not containing quality scores, the pipeline will attempt to automatically override the phred quality offset to 33.
-If the pipeline is unable to automatically detect the lack of quality score before assembly steps it will fail the sample, set --lock_phred to provide a --phred_lock 33 to spades to address these failiures case. 
+If the pipeline is unable to automatically detect the lack of quality score before assembly steps it will fail the sample, set --lock_phred to provide a --phred_lock 33 to spades to address these failiures case.
 
 `--megahit_deterministic`:
 Running MEGAHIT deterministically requires restricting execution to a single CPU (default: 8). This increases MEGAHIT runtime by approximately 7.5×, which can extend the total pipeline runtime depending on the number and size of samples inputted. For example, assembling 20 low-depth metagenomic samples deterministically adds roughly 6 hours to the overall pipeline runtime.
-
 
 ## Credits
 
