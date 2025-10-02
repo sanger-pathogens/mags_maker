@@ -199,7 +199,7 @@ Alternatively, the user can provide a CSV-format manifest listing a batch of suc
       --manifest
             default:
             Manifest containing paths to fastq files with headers ID,R1,R2. (mandatory)
-      -- qc
+      --qc
             default: metawrap
             Skip metawrap QC step [options: metawrap|skip] (optional)
       --checkm1
@@ -233,20 +233,23 @@ Assembly Subworkflow Options:
             default: false
             Generate assembly statistics (optional)
     --min_contig
-            default: 1500
-            Minimum threshold for contig size (kb) (optional)
+            default: 1000
+            Minimum threshold for contig size (kb) taken as the lowest tool specific threshold with MaxBin2, CONCOCT or MetaBAT2 (optional)
     --fastspades
             default: null
             Run SPAdes assembly module only (optional)
     --lock_phred
             default: null
-            Set PHRED quality offset to 33 (SPAdes option) (optional)
+            Set PHRED quality offset to 33 (SPAdes option), please see "Further information" below for more details (optional)
     --metaspades
             default: true
             Run metaSPAdes assembly (optional)
     --megahit
             default: true
             Run MEGAHIT assembly (optional)
+    --megahit_deterministic
+            default: false
+            Run MEGAHIT assembly deterministically, please see "Further information" below for runtime impacts (optional)
     --output_transposed
             default: false
             Output transposed quast reports (optional)
@@ -257,6 +260,15 @@ Binning Subworkflow Options:
     --bin_seed
             default: 1234
             Set a fixed seed for metaBAT1/2 and CONCOCT (optional)
+    --maxbin2_min_contig 
+            default: 1000
+            Minimum threshold for contig size (kb) for MaxBin2
+    --concoct_min_contig 
+            default: 1000
+            Minimum threshold for contig size (kb) for concoct
+    --metabat_min_contig
+            default: 1500
+            Minimum threshold for contig size (kb) for metabat
     --maxbin_markers
             default: 140
             Marker set to choose from for MaxBin. 107 marker genes present in >95% of bacteria, or 40 marker gene sets that are universal among bacteria and archaea (optional)
@@ -293,8 +305,8 @@ Reassemble Subworkflow Options:
             default: 5
             Permissive bin mismatch threshold (optional)
     --min_contig
-            default: 1500
-            help_text: Minimum threshold for contig size (kb) (optional)
+            default: 1000
+            Minimum threshold for contig size (kb) taken as the lowest tool specific threshold with MaxBin2, CONCOCT or MetaBAT2 (optional)
     --min_completeness:
             default: 50
             Minimum completeness threshold (%) (optional)
@@ -306,7 +318,7 @@ Reassemble Subworkflow Options:
             Path to directory containing CheckM2 database (optional)
     --lock_phred
             default: false
-            Set PHRED quality offset to 33 (SPAdes option) (optional)
+            Set PHRED quality offset to 33 (SPAdes option), please see "Further information" below for more details (optional)
 
 -----------------------------------------------------------------
 ```
@@ -358,6 +370,16 @@ Output folders are described in the following table:
 | final_summary.tsv | Contains all samples checkm1/checkm2 summary stats for the best bins chosen |
 
 Please note the full set of bins will not be outputted from this pipeline. Only the best quality bins will be published which occurs during the CHOOSE_BEST_BIN process.
+
+## Further information
+
+`--lock_phred`:
+If using a sra-lite format reads, or other formats not containing quality scores, the pipeline will attempt to automatically override the phred quality offset to 33.
+If the pipeline is unable to automatically detect the lack of quality score before assembly steps it will fail the sample, set --lock_phred to provide a --phred_lock 33 to spades to address these failiures case. 
+
+`--megahit_deterministic`:
+Running MEGAHIT deterministically requires restricting execution to a single CPU (default: 8). This increases MEGAHIT runtime by approximately 7.5×, which can extend the total pipeline runtime depending on the number and size of samples inputted. For example, assembling 20 low-depth metagenomic samples deterministically adds roughly 6 hours to the overall pipeline runtime.
+
 
 ## Credits
 
