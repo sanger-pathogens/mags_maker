@@ -232,9 +232,6 @@ Assembly Subworkflow Options:
     --assembly_stats
             default: false
             Generate assembly statistics (optional)
-    --min_contig
-            default: 1000
-            Minimum threshold for contig size (kb) taken as the lowest tool specific threshold with MaxBin2, CONCOCT or MetaBAT2 (optional)
     --fastspades
             default: null
             Run SPAdes assembly module only (optional)
@@ -262,13 +259,13 @@ Binning Subworkflow Options:
             Set a fixed seed for metaBAT1/2 and CONCOCT (optional)
     --maxbin2_min_contig
             default: 1000
-            Minimum threshold for contig size (kb) for MaxBin2
+            Minimum threshold for contig size (kb) for MaxBin2. The lowest accepted value is 500. (optional)
     --concoct_min_contig
             default: 1000
-            Minimum threshold for contig size (kb) for concoct
+            Minimum threshold for contig size (kb) for concoct. The lowest accepted value is 500. (optional)
     --metabat_min_contig
             default: 1500
-            Minimum threshold for contig size (kb) for metabat
+            Minimum threshold for contig size (kb) for metabat. The lowest accepted value is 1500. (optional)
     --maxbin_markers
             default: 140
             Marker set to choose from for MaxBin. 107 marker genes present in >95% of bacteria, or 40 marker gene sets that are universal among bacteria and archaea (optional)
@@ -304,9 +301,6 @@ Reassemble Subworkflow Options:
     --permissive_max
             default: 5
             Permissive bin mismatch threshold (optional)
-    --min_contig
-            default: 1000
-            Minimum threshold for contig size (kb) taken as the lowest tool specific threshold with MaxBin2, CONCOCT or MetaBAT2 (optional)
     --min_completeness:
             default: 50
             Minimum completeness threshold (%) (optional)
