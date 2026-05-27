@@ -114,44 +114,44 @@ results/
 
 **Input options**
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `--manifest` | `path` | `""` | Input manifest CSV with required header `ID,R1,R2` (mandatory). |
+| Option       | Type   | Default | Description                                                     |
+| ------------ | ------ | ------- | --------------------------------------------------------------- |
+| `--manifest` | `path` | `""`    | Input manifest CSV with required header `ID,R1,R2` (mandatory). |
 
 ---
 
 **Assembly options**
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `--metaspades` | `boolean` | `true` | Run metaSPAdes assembly. |
-| `--megahit` | `boolean` | `true` | Run MEGAHIT assembly. |
+| Option         | Type      | Default | Description              |
+| -------------- | --------- | ------- | ------------------------ |
+| `--metaspades` | `boolean` | `true`  | Run metaSPAdes assembly. |
+| `--megahit`    | `boolean` | `true`  | Run MEGAHIT assembly.    |
 
 ---
 
 **Bin refinement options**
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `--checkm1` | `boolean` | `true` | Use CheckM1 for bin quality assessment. Set `false` to use CheckM2 instead. |
+| Option      | Type      | Default | Description                                                                 |
+| ----------- | --------- | ------- | --------------------------------------------------------------------------- |
+| `--checkm1` | `boolean` | `true`  | Use CheckM1 for bin quality assessment. Set `false` to use CheckM2 instead. |
 
 ---
 
 **Pipeline options**
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `--qc` | `string` | `metawrap` | QC method to use. |
-| `--skip_reassembly` | `boolean` | `false` | Skip the bin reassembly step. |
+| Option              | Type      | Default    | Description                   |
+| ------------------- | --------- | ---------- | ----------------------------- |
+| `--qc`              | `string`  | `metawrap` | QC method to use.             |
+| `--skip_reassembly` | `boolean` | `false`    | Skip the bin reassembly step. |
 
 ---
 
 **Output options**
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `--outdir` | `path` | `./results` | Directory where results are written. |
-| `--monochrome_logs` | `boolean` | `false` | Output logs in plain ASCII. |
+| Option              | Type      | Default     | Description                          |
+| ------------------- | --------- | ----------- | ------------------------------------ |
+| `--outdir`          | `path`    | `./results` | Directory where results are written. |
+| `--monochrome_logs` | `boolean` | `false`     | Output logs in plain ASCII.          |
 
 See `mags_maker --help` for the full parameter list including QC, assembly, binning, refinement, and reassembly sub-workflow parameters.
 
@@ -189,14 +189,14 @@ The BMTagger human decontamination step requires a BMTagger database (default: `
 
 Key software:
 
-| Software | Version | Image |
-| --- | --- | --- |
-| TrimGalore | — | `quay.io/sangerpathogens/trimgalore:*` |
-| BMTagger | — | `quay.io/biocontainers/bmtagger:*` |
-| metaSPAdes | — | `quay.io/biocontainers/spades:*` |
-| MEGAHIT | — | `quay.io/biocontainers/megahit:*` |
-| CheckM | — | `quay.io/biocontainers/checkm-genome:*` |
-| CheckM2 | — | `quay.io/biocontainers/checkm2:*` |
+| Software   | Version | Image                                   |
+| ---------- | ------- | --------------------------------------- |
+| TrimGalore | —       | `quay.io/sangerpathogens/trimgalore:*`  |
+| BMTagger   | —       | `quay.io/biocontainers/bmtagger:*`      |
+| metaSPAdes | —       | `quay.io/biocontainers/spades:*`        |
+| MEGAHIT    | —       | `quay.io/biocontainers/megahit:*`       |
+| CheckM     | —       | `quay.io/biocontainers/checkm-genome:*` |
+| CheckM2    | —       | `quay.io/biocontainers/checkm2:*`       |
 
 See `assorted-sub-workflows/mags_maker/*/modules/` for pinned container versions.
 
