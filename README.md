@@ -201,14 +201,14 @@ The BMTagger human decontamination step requires a BMTagger database (default: `
 
 Key software:
 
-| Software   | Version | Image                                   |
-| ---------- | ------- | --------------------------------------- |
-| TrimGalore | —       | `quay.io/sangerpathogens/trimgalore:*`  |
-| BMTagger   | —       | `quay.io/biocontainers/bmtagger:*`      |
-| metaSPAdes | —       | `quay.io/biocontainers/spades:*`        |
-| MEGAHIT    | —       | `quay.io/biocontainers/megahit:*`       |
-| CheckM     | —       | `quay.io/biocontainers/checkm-genome:*` |
-| CheckM2    | —       | `quay.io/biocontainers/checkm2:*`       |
+| Software   | Version | Image                                                     |
+| ---------- | ------- | --------------------------------------------------------- |
+| TrimGalore | 0.4.4   | `quay.io/sangerpathogens/trimgalore:v0.4.4`               |
+| BMTagger   | 3.101   | `quay.io/biocontainers/bmtagger:3.101--h470a237_4`        |
+| metaSPAdes | 3.15.5  | `quay.io/biocontainers/spades:3.15.5--h95f258a_1`         |
+| MEGAHIT    | 1.2.9   | `quay.io/biocontainers/megahit:1.2.9--h5ca1c30_6`         |
+| CheckM     | 1.2.4   | `quay.io/biocontainers/checkm-genome:1.2.4--pyhdfd78af_0` |
+| CheckM2    | 1.0.2   | `quay.io/biocontainers/checkm2:1.0.2--pyh7cba7a3_0`       |
 
 See `assorted-sub-workflows/mags_maker/*/modules/` for pinned container versions.
 
