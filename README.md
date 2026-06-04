@@ -217,7 +217,9 @@ See `assorted-sub-workflows/mags_maker/*/modules/` for pinned container versions
 - **BMTagger database not found**: ensure the BMTagger database is available at the configured path. On the Sanger HPC the default path is pre-configured.
 - **Assembly fails with insufficient memory**: metaSPAdes is memory-intensive. Adjust the resource labels via a custom config or use only MEGAHIT for low-memory runs.
 - **Resuming a failed run**: add `-resume` to your command to restart from cached intermediate results.
-- For further help, check `.nextflow.log` and the per-process logs in the `work/` directory.
+- For further help, check `.nextflow.log` and the per-process `.command.log` logs in the `work/` directory.
+
+Sanger users may find [this page](https://ssg-confluence.internal.sanger.ac.uk/spaces/PaMI/pages/181078206/General+pipeline+info#Generalpipelineinfo-Troubleshootingafailedpipelinerunandsendingabugreport) useful for troubleshooting Nextflow pipeline runs.
 
 ## Issues and Contributions
 
