@@ -28,7 +28,7 @@ The pipeline runs six stages:
 1. Clone this repository (including submodules):
 
    ```bash
-   git clone --recurse-submodules https://gitlab.internal.sanger.ac.uk/sanger-pathogens/pipelines/mags_maker.git
+   git clone --recurse-submodules <repo-url>
    cd mags_maker
    ```
 
