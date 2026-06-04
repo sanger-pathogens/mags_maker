@@ -105,21 +105,27 @@ Results are written to `--outdir` (default: `./results`):
 
 ```
 results/
-  qc/
-    fastqc/                        # FastQC reports (pre- and post-filtering)
-    multiqc/                       # MultiQC summary
-  assembly/
-    <sample_ID>/
-      metaspades/                  # metaSPAdes assembly
-      megahit/                     # MEGAHIT assembly
-  binning/
-    <sample_ID>/                   # Bin candidate FASTA files
-  bin_refinement/
-    <sample_ID>/                   # Refined bins with completeness/contamination metrics
-  reassembly/                      # Reassembled bins (when --skip_reassembly false)
-    <sample_ID>/
-  reports/
-    summary_report.csv             # Cross-sample summary
+  metawrap_qc/
+    cleaned_reads/
+      <sample_ID>_clean_1.fastq.gz   # Host-depleted, adapter-trimmed reads
+      <sample_ID>_clean_2.fastq.gz
+    read_removal_statistics.csv      # Per-sample read removal statistics
+  host_reads/                        # Only when --publish_host_reads is set
+    <sample_ID>_host_1.fastq.gz
+    <sample_ID>_host_2.fastq.gz
+  <sample_ID>/
+    quast/
+      <sample_ID>_assembly_stats/    # QUAST assembly quality report
+    checkm1/                         # CheckM1 bin quality summary (when --checkm1 true, default)
+      <sample_ID>_<bin>checkm_summary.tsv
+    checkm2/                         # CheckM2 bin quality report (when --checkm1 false)
+      <sample_ID>_<bin>_checkm2_report.tsv
+    <bin>.fasta                      # Final bins and per-sample CheckM report
+    <sample_ID>_report.txt
+  bin_merging/
+    <sample_ID>_merge.log            # Bin merging log
+    <sample_ID>_best_bins.stats      # Best-bin selection statistics
+  final_summary.tsv                  # Cross-sample summary of all bins
 ```
 
 ### Parameters
