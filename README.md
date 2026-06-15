@@ -189,17 +189,7 @@ See `mags_maker --help` for the full parameter list including QC, assembly, binn
 
 #### Running with only one assembler
 
-To use only metaSPAdes:
-
-```bash
-nextflow run main.nf --manifest manifest.csv --megahit false --outdir my_output
-```
-
-To use only MEGAHIT:
-
-```bash
-nextflow run main.nf --manifest manifest.csv --metaspades false --outdir my_output
-```
+By default both metaSPAdes and MEGAHIT assemble the metagenome. To use **only metaSPAdes** turn off MEGAHIT with `--megahit false`. Similarly, to use **only MEGAHIT** turn off metaSPAdes with `--metaspades false`.
 
 #### Skipping reassembly
 
