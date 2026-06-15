@@ -19,6 +19,8 @@ The pipeline runs six stages:
 5. **Bin reassembly** (optional) — high-quality bins are reassembled using SPAdes to improve contiguity.
 6. **Reporting** — a summary report is generated across all samples.
 
+![workflow diagram](./assets/mags_maker.svg)
+
 ## Usage
 
 ### Quickstart
