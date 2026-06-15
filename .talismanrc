@@ -1,2 +1,5 @@
 threshold: medium
 version: "1.0"
+fileignoreconfig:
+  - filename: assets/mags_maker.svg
+    ignore_detectors: [filecontent]
