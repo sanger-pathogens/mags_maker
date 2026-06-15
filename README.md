@@ -77,6 +77,8 @@ bsub -o output.o -e error.e -q oversubscribed -R "select[mem>4000] rusage[mem=40
 
 ### Input
 
+:warning: Note that we recommend running batches of 100 samples or fewer through this pipeline to avoid transient IO errors.
+
 #### Manifest (`--manifest`)
 
 A CSV file with the required header `ID,R1,R2`, containing per-sample paths to paired `.fastq.gz` files:
