@@ -214,6 +214,9 @@ See `mags_maker --help` for the full parameter list including QC, assembly, binn
 
 ### Advanced usage
 
+#### Determinism
+MEGAHIT can run deterministically (`--megahit_deterministic`) however this is not generally recommended as it requires restricting execution to a single CPU (default: 8). This increases MEGAHIT runtime by approximately 7.5×, which can extend the total pipeline runtime depending on the number and size of samples inputted. For example, assembling 20 low-depth metagenomic samples deterministically adds roughly 6 hours to the overall pipeline runtime.
+
 #### Running with only one assembler
 
 By default both metaSPAdes and MEGAHIT assemble the metagenome. To use **only metaSPAdes** turn off MEGAHIT with `--megahit false`. Similarly, to use **only MEGAHIT** turn off metaSPAdes with `--metaspades false`.
