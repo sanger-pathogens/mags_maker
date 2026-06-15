@@ -221,14 +221,6 @@ MEGAHIT can run deterministically (`--megahit_deterministic`) however this is no
 
 By default both metaSPAdes and MEGAHIT assemble the metagenome. To use **only metaSPAdes** turn off MEGAHIT with `--megahit false`. Similarly, to use **only MEGAHIT** turn off metaSPAdes with `--metaspades false`.
 
-#### Skipping reassembly
-
-Bin reassembly is enabled by default. To skip it and save compute time:
-
-```bash
-nextflow run main.nf --manifest manifest.csv --skip_reassembly --outdir my_output
-```
-
 ### Dependencies
 
 Both BMTagger and taxonomic classification using CheckM2 require databases. Defaults are preconfigured for the Sanger HPC. For external users, please build or download these databases and supply paths to the relevant parameters.
