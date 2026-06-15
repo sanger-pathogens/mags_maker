@@ -130,11 +130,24 @@ results/
 
 ### Parameters
 
-**Input options**
+**Input/Output options**
 
 | Option       | Type   | Default | Description                                                     |
 | ------------ | ------ | ------- | --------------------------------------------------------------- |
-| `--manifest` | `path` | `""`    | Input manifest CSV with required header `ID,R1,R2` (mandatory). |
+| `--manifest` | `path` | `""`    | Input manifest CSV with required header `ID,R1,R2` (required). |
+| `--outdir`          | `path`    | `./results` | Directory where results are written. |
+
+---
+
+**Quality Control options**
+
+| Option         | Type      | Default | Description              |
+| -------------- | --------- | ------- | ------------------------ |
+| `--qc`              | `string`  | `metawrap` | Run QC with `metawrap` or supply `skip`.             |
+| `--skip_reassembly` | `boolean` | `false`    | Skip the bin reassembly step. |
+| `--bmtagger_db` | `path` | `/data/pam/software/bmtagger`    | Path to directory containing BMTagger database. |
+| `--bmtagger_host` | `path` | `T2T-CHM13v2.0`    | Reference genome version used for host read filtering. |
+| `--publish_host_data` | `boolean` | `false`    | Publish the reads determined to originate from the host organism. |
 
 ---
 
@@ -164,11 +177,10 @@ results/
 
 ---
 
-**Output options**
+**Logging options**
 
 | Option              | Type      | Default     | Description                          |
 | ------------------- | --------- | ----------- | ------------------------------------ |
-| `--outdir`          | `path`    | `./results` | Directory where results are written. |
 | `--monochrome_logs` | `boolean` | `false`     | Output logs in plain ASCII.          |
 
 See `mags_maker --help` for the full parameter list including QC, assembly, binning, refinement, and reassembly sub-workflow parameters.
