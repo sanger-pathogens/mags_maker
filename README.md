@@ -99,6 +99,11 @@ This pipeline supports additional input modes via the `mixed_input` sub-workflow
 
 Run `--help` for the full parameter list (specifically the section "Sequencing reads input parameters") or see the [mixed_input documentation](./assorted-sub-workflows/mixed_input/README.md) for more information.
 
+#### BMTagger database
+
+BMTagger removes contaminant host reads from metagenomics datasets during QC with `metawrap` (default). It requires a reference database.
+The default is set for the human T2T reference on the Sanger HPC, please adjust if you prefer a different reference or are an external user. Find instructions for making a BMTagger reference database in the tool's documentation: https://ftp.ncbi.nlm.nih.gov/pub/agarwala/bmtagger/README.bmtagger.txt
+
 ### Output
 
 Results are written to `--outdir` (default: `./results`):
@@ -201,9 +206,9 @@ nextflow run main.nf --manifest manifest.csv --skip_reassembly --outdir my_outpu
 
 ### Dependencies
 
-All dependencies are containerised in publicly available Docker/Singularity images.
+Both BMTagger and taxonomic classification using CheckM2 require databases. Defaults are preconfigured for the Sanger HPC. For external users, please build or download these databases and supply paths to the relevant parameters.
 
-The BMTagger human decontamination step requires a BMTagger database (default: `/data/pam/software/bmtagger` on the Sanger HPC). For external users, build or download a BMTagger index for your host reference.
+All other dependencies are containerised in publicly available Docker/Singularity images.
 
 ## Software versions
 
