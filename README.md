@@ -6,378 +6,256 @@
 
 [[_TOC_]]
 
-## Introduction
+## Pipeline overview
 
-**mags_maker** is an adaptation of the [generate_mags](https://gitlab.internal.sanger.ac.uk/sanger-pathogens/pipelines/team162/generate_mags/-/tree/main) nextflow pipeline that generates MAGs (Metagenome-Assembled Genomes), with additional functionalities summarised below.
+**mags_maker** is a Nextflow DSL2 pipeline for generating Metagenome-Assembled Genomes (MAGs) from short-read metagenomic sequencing data. It is based on the [generate_mags](../generate_mags) pipeline with additional assembly options and reporting functionality.
 
-## Additional functionality to generate_mags
+The pipeline runs six stages:
 
-Assembly Options:
+1. **QC and decontamination** — adapter trimming (TrimGalore), human read removal (BMTagger), and per-sample quality reports (FastQC/MultiQC).
+2. **Assembly** — metagenomic assembly using metaSPAdes and/or MEGAHIT (default: both).
+3. **Binning** — assembled contigs are binned into MAG candidates using multiple binning tools.
+4. **Bin refinement** — bin quality is assessed and refined using CheckM1 (default) or CheckM2.
+5. **Bin reassembly** (optional) — high-quality bins are reassembled using SPAdes to improve contiguity.
+6. **Reporting** — a summary report is generated across all samples.
 
-- Assemble metagenomic reads using one of the following options:
+![workflow diagram](./assets/mags_maker.svg)
 
-  a) Use both metaSPAdes and re-assemble with MEGAHIT (default)
-  b) Use only metaSPAdes for assembly (if `--megahit false`)
-  c) Use only MEGAHIT for assembly (if `--metaspades false`)
+## Usage
 
-Bin Refinement Options:
+### Quickstart
 
-- Refine MAG bins using either CheckM2 or CheckM
+#### From source code
 
-Reporting:
-
-- A summary report is generated across of the samples at the end of the run
-
-## Pipeline summary
-
-There are 6 stages in this pipeline: QC, assembly, binning, bin refinement, bin reassembly and reporting.
-
-## Getting started
-
-### Running on the farm (Sanger HPC clusters)
-
-1. Load nextflow and singularity modules:
+1. Clone this repository (including submodules):
 
    ```bash
-   module load nextflow ISG/singularity
+   git clone --recurse-submodules <repo-url>
+   cd mags_maker
    ```
 
-2. Either:
-
-   - Clone this repository using `git clone --recurse-submodules`  
-     OR
-   - Use ready-made module: `module load mags_maker`  
-     :warning: If using the ready-made module, replace `nextflow run main.nf` with `mags_maker` in all subsequent commands.
-
-3. Start the pipeline  
-   For example inputs, please see [Generating a manifest](#generating-a-manifest).
-
-   Example:
+2. To run with `docker`, use the `-profile docker` option:
 
    ```bash
-   nextflow run main.nf --manifest ./test_data/inputs/test_manifest.csv --outdir my_output
+   nextflow run main.nf \
+       -profile docker \
+       --manifest manifest.csv \
+       --outdir my_output
    ```
 
-   It is good practice to submit a dedicated job for the nextflow master process (use the `oversubscribed` queue):
+   Other profiles are also supported (`singularity`).  
+   :warning: If no profile is specified the pipeline will run with the Sanger HPC-specific configuration.
 
-   ```bash
-   bsub -o output.o -e error.e -q oversubscribed -R "select[mem>4000] rusage[mem=4000]" -M4000 nextflow run . --manifest ./test_data/inputs/test_manifest.csv --outdir my_output
-   ```
-
-   See [usage](#usage) for all available pipeline options.
-
-4. Once your run has finished, check output in the `outdir` and clean up any intermediate files. To do this (assuming no other pipelines are running from the current working directory) run:
+3. Once the run has finished successfully and you have inspected the output, clean up intermediate files. The `work/` directory and `.nextflow.log` are useful for troubleshooting — do not delete them until you are satisfied the outputs are correct:
 
    ```bash
    rm -rf work .nextflow*
    ```
 
-> :warning:
-> It is strongly recommended that you don't run more than 100 samples at a time through this pipeline to reduce vulnerabilities to transient errors - e.g. LSF and I/O errors.
+   Alternatively, use `nextflow clean` for more fine-grained control over which runs and intermediate files are removed.
 
-### Other supported environments
+#### Using on the Sanger farm
 
-Currently, you can also run this pipeline on a dedicated host machine containing docker (using `-profile docker`) or (`-profile singularity`). No other environments are natively supported at this time.
+First load the latest pipeline module:
 
-## Generating a manifest
-
-This pipeline has several input parameters that allow read data to be retrieved locally, from the ENA, and from iRODS. Further detail can be found by using the pipeline `--help` parameter, or [here](./assorted-sub-workflows/README.md).
-
-### Generating a manifest on the farm (Sanger HPC clusters)
-
-It is recommended to use the dedicated the farm module `manifest_generator`:
-
-```
-module load manifest_generator
-generate_manifest.py -h # for script usage
+```bash
+module load mags_maker
 ```
 
-## Usage
+Then run on the command line with `mags_maker <options>`. For instance, to see a help message:
 
-```
-Sequencing reads input parameters:
-
-There are two ways of providing input reads, which can be combined
-      1) through direct input of compressed fastq sequence reads files. This kind of input is passed by specifying the paths to the
-      read files via a manifest listing the pair of read files pertaining to a sample, one per row.
-
-      --manifest_of_reads
-            default: false
-            Manifest containing per-sample paths to .fastq.gz files (optional)
-
-      2) through specification of data to be downloaded from iRODS.
-      The selected set of data files is defined by a combination of parameters: studyid, runid, laneid, plexid, target and type (these refer to specifics of the sequencing experiment and data to be retrieved).
-      Each parameter restricts the set of data files that match and will be downloaded; when omitted, samples for all possible values of that parameter are retrieved.
-      At least one of studyid or runid parameters must be specified. laneid/plexid/target/type are optional parameters that can be provided only in combination with studyid or runid;
-      if these are specified without a studyid or runid, the request will be ignored (no iRODS data or metadata download) with a warning
-      - this condition aims to avoid indiscriminate download of thousands of files across all possible runs.
-      These parameters can be specified through the following command line options: --studyid, --runid, --laneid, --plexid, --target and --type.
-
-      --studyid
-            default: -1
-            Sequencing Study ID
-      --runid
-            default: -1
-            Sequencing Run ID
-      --laneid
-            default: -1
-            Sequencing Lane ID
-      --plexid
-            default: -1
-            Sequencing Plex ID
-      --target
-            default: 1
-            Marker of key data product likely to be of interest to customer
-      --type
-            default: cram
-            File type
-
-Alternatively, the user can provide a CSV-format manifest listing a batch of such combinations.
-
-      --manifest_of_lanes
-            default: false
-            Path to a manifest of search terms as specified above.
-            At least one of studyid or runid fields, or another field that matches the list of iRODS metadata fields must be specified; other parameters are not mandatory and corresponding
-            fields in the CSV manifest file can be left blank. laneid/plexid are only considered when provided alongside a studyid or runid. target/type are only considered in combination with studyid, runid, or other fields.
-
-            Example of manifest 1:
-                studyid,runid,laneid,plexid
-                ,37822,2,354
-                5970,37822,,332
-                5970,37822,2,
-
-            Example of manifest 2:
-                sample_common_name,type,target
-                Romboutsia lituseburensis,cram,1
-                Romboutsia lituseburensis,cram,0
-      --manifest_ena
-            default: false
-            Path to a manifest/file of ENA accessions (run, sample or study). Please also set the --accession_type to the appropriate accession type.
-
------------------------------------------------------------------
-
- Aliased options:
-      --manifest
-            default:
-            Alias for --manifest_of_reads (optional)
-
------------------------------------------------------------------
-
- Irods extractor processing options:
-      --cleanup_intermediate_files_irods_extractor
-            default: false
-            delete intermediate CRAM files downloaded from IRODS in work/ folder
-      --preexisting_fastq_tag
-            default: raw_fastq
-            if the expected output fastq files exist in the folder named like this under the result folder for the sample e.g. in results/12345_1#67/raw_fastq/12345_1#67_1.fastq.gz,
-            then skip download and any further processing for this sample.
-      --split_sep_for_ID_from_fastq
-            default: _1.fastq
-            separator to recognise sample ID from preexisting file.
-      --lane_plex_sep
-            default: #
-            separator to build sample ID from runid, laneid and plexid. Defaults to '#', which is the iRODS-native syntax.
-      --save_method
-            default: nested
-            save output files in per sample folders (nested) or in one folder (flat)
-      --irods_subset_to_skip
-            default: phix
-            skip data items for which metadata field 'subset' is set to this value
-      --combine_same_id_crams
-            default: false
-            if retrieving read files representing subsets of the same source (files will share the same run, lane and plex IDs), should these files be combined into a 'total' subset i.e. reforming the source read file before subsetting by NPG processing.
-      --large_data
-            default: false
-            If the data is very large instead start from the week queue with more memory (10GB)
-      --read_type
-            default: Illumina
-            Platform the data you wish to receive was sequenced on Illumina|ont
-
------------------------------------------------------------------
-
- General Options:
-      --manifest
-            default:
-            Manifest containing paths to fastq files with headers ID,R1,R2. (mandatory)
-      --qc
-            default: metawrap
-            Skip metawrap QC step [options: metawrap|skip] (optional)
-      --checkm1
-            default: false
-            Assess quality using the CheckM tool rather than the default - CheckM2 (optional)
-      --skip_reassembly
-            default: false
-            Skip the reassembly process (optional)
-      --outdir
-            default: ./results
-            Directory to store pipeline output (optional)
-
-
------------------------------------------------------------------
-
- Quality Control Options:
-      -- publish_host_data
-            default: false
-            Publish the reads determined to originate from the host organism (optional)
-      -- bmtagger_db
-            default: /data/pam/software/bmtagger
-            Path to directory containing BMTagger database (optional)
-      -- bmtagger_host
-            default: T2T-CHM13v2.0
-            Reference genome version used for host read filtering (optional)
-
------------------------------------------------------------------
-
-Assembly Subworkflow Options:
-    --assembly_stats
-            default: false
-            Generate assembly statistics (optional)
-    --fastspades
-            default: null
-            Run SPAdes assembly module only (optional)
-    --lock_phred
-            default: null
-            Set PHRED quality offset to 33 (SPAdes option), please see "Further information" below for more details (optional)
-    --metaspades
-            default: true
-            Run metaSPAdes assembly (optional)
-    --megahit
-            default: true
-            Run MEGAHIT assembly (optional)
-    --megahit_deterministic
-            default: false
-            Run MEGAHIT assembly deterministically, please see "Further information" below for runtime impacts (optional)
-    --output_transposed
-            default: false
-            Output transposed quast reports (optional)
-
------------------------------------------------------------------
-
-Binning Subworkflow Options:
-    --bin_seed
-            default: 1234
-            Set a fixed seed for metaBAT1/2 and CONCOCT (optional)
-    --maxbin2_min_contig
-            default: 1000
-            Minimum threshold for contig size (kb) for MaxBin2. The lowest accepted value is 500. (optional)
-    --concoct_min_contig
-            default: 1000
-            Minimum threshold for contig size (kb) for concoct. The lowest accepted value is 500. (optional)
-    --metabat_min_contig
-            default: 1500
-            Minimum threshold for contig size (kb) for metabat. The lowest accepted value is 1500. (optional)
-    --maxbin_markers
-            default: 140
-            Marker set to choose from for MaxBin. 107 marker genes present in >95% of bacteria, or 40 marker gene sets that are universal among bacteria and archaea (optional)
-    --metabat1
-            default: null
-            Run metaBAT1 binning instead of default metaBAT2 (optional)
-    --keep_unbinned
-            default: false
-            Keep unbinned contigs (optional)
-
------------------------------------------------------------------
-
-Binning Refinement Subworkflow Options:
-    --checkm2_db
-            default: /data/pam/software/checkm2_db/uniref100.KO.1.dmnd
-            Path to directory containing CheckM2 database (optional)
-    --min_completeness:
-            default: 50
-            Minimum completeness threshold (%) (optional)
-    --max_contamination:
-            default: 5
-            Maximum contamination threshold (%) (optional)
-    --remove_ambiguous_contigs
-            default: false
-            Dereplicate by removing ambiguous contigs rather than the default strategy of assigning them to the highest quality potential bin (optional)
-
------------------------------------------------------------------
-
-Reassemble Subworkflow Options:
-    --strict_max
-            default: 2
-            Strict bin mismatch threshold (optional)
-    --permissive_max
-            default: 5
-            Permissive bin mismatch threshold (optional)
-    --min_completeness:
-            default: 50
-            Minimum completeness threshold (%) (optional)
-    --max_contamination:
-            default: 5
-            Maximum contamination threshold (%) (optional)
-    --checkm2_db
-            default: /data/pam/software/checkm2_db/uniref100.KO.1.dmnd
-            Path to directory containing CheckM2 database (optional)
-    --lock_phred
-            default: false
-            Set PHRED quality offset to 33 (SPAdes option), please see "Further information" below for more details (optional)
-
------------------------------------------------------------------
+```bash
+mags_maker --help
 ```
 
-## Output and intermediate file cleanup
+Submit to LSF:
 
-By default, this pipeline will publish the results to a `results` folder, this can be changed using the `--outdir` argument.
-
-For instance, the output directory could look like:
-
+```bash
+bsub -o output.o -e error.e -q oversubscribed -R "select[mem>4000] rusage[mem=4000]" -M4000 \
+    mags_maker \
+        --manifest manifest.csv \
+        --outdir my_output
 ```
 
-example_output
-├── bin_merging
-│    ├── <sample_id>_merge.log
-├── metawrap_qc
-│   ├── cleaned_reads
-│   │   ├── <sample_id>_clean_1.fastq.gz
-│   │   ├── <sample_id>_clean_2.fastq.gz
-│   │   ├── ...
-│   ├── host_reads
-│   │   ├── <sample_id>_host_1.fastq.gz
-│   │   ├── <sample_id>_host_1.fastq.gz
-│   │   ├── ...
-│   ├── read_removal_statistics.csv
-├── <sample_id>
-│   ├── checkm1
-│   │   ├── <bin_tool>_summary.tsv
-│   │   ├── ...
-│   ├── checkm2
-│   │   ├── <bin_tool>_summary.tsv
-│   │   ├── ...
-│   ├── <sample_id>_best_bins
-│   │   ├── <length>_<sample_id>_bin_1_<strict/permissive/origin>.fasta
-│   │   ├── ...
-│   ├── <sample_id>_best_bins_summary.tsv
-│   ├── quast
-│   │   ├── transposed_report.tsv
-└── final_summary.tsv
+### Input
+
+:warning: Note that we recommend running batches of 100 samples or fewer through this pipeline to avoid transient IO errors.
+
+#### Manifest (`--manifest`)
+
+A CSV file with the required header `ID,R1,R2`, containing per-sample paths to paired `.fastq.gz` files:
 
 ```
+ID,R1,R2
+sampleA,/path/to/sampleA_1.fastq.gz,/path/to/sampleA_2.fastq.gz
+sampleB,/path/to/sampleB_1.fastq.gz,/path/to/sampleB_2.fastq.gz
+```
 
-Output folders are described in the following table:
-| folder | description |
-| --------- | --------------------------------------------------------- |
-| bin_merging | Contains a log per sample stating parameters used and number of bins kept/discarded from each tool output when merging bins together |
-| metawrap_qc | Contains host reads (fastq.gz) (if `--publish_host_data` option is used), cleaned/host-removed sample reads (fastq.gz), as well as read_removal_statistics.csv generated during the metawrap qc step (if `--qc` option is used) |
-| <sample_id> | Contains the checkm1/checkm2 summary stats for each binning tool from bin refinement, the best bin assemblies after reassembly and the checkm1/checkm2 summary stats for the best bins chosen |
-| final_summary.tsv | Contains all samples checkm1/checkm2 summary stats for the best bins chosen |
+**Sanger users:** the [manifest_generator](https://gitlab.internal.sanger.ac.uk/sanger-pathogens/pipelines/manifest_generator/) tool can generate a compatible `ID,R1,R2` manifest from FASTQ files on disk.
 
-Please note the full set of bins will not be outputted from this pipeline. Only the best quality bins will be published which occurs during the CHOOSE_BEST_BIN process.
+#### Other input modes
 
-## Further information
+This pipeline supports additional input modes via the `mixed_input` sub-workflow — these can be combined in a single run:
 
-`--lock_phred`:
-If using a sra-lite format reads, or other formats not containing quality scores, the pipeline will attempt to automatically override the phred quality offset to 33.
-If the pipeline is unable to automatically detect the lack of quality score before assembly steps it will fail the sample, set --lock_phred to provide a --phred_lock 33 to spades to address these failiures case.
+- **iRODS** (Sanger internal) — specify `--studyid`, `--runid`, `--laneid`, and/or `--plexid` on the command line; at least `--studyid` or `--runid` is required. A batch CSV of multiple iRODS searches can be supplied via `--manifest_of_lanes`. Requires an active iRODS session (`iinit`).
+- **ENA download** — supply a file of ENA accession IDs via `--manifest_ena`. Set `--accession_type` to `run` (default), `sample`, or `study`.
+- **Directory scan** — provide a path to a directory of FASTQ files via `--manifest_from_dir`. Use `--fastq_validation` (`strict`/`relaxed`, default: `strict`) and `--max_depth` (default: `0`) to control discovery.
 
-`--megahit_deterministic`:
-Running MEGAHIT deterministically requires restricting execution to a single CPU (default: 8). This increases MEGAHIT runtime by approximately 7.5×, which can extend the total pipeline runtime depending on the number and size of samples inputted. For example, assembling 20 low-depth metagenomic samples deterministically adds roughly 6 hours to the overall pipeline runtime.
+Run `--help` for the full parameter list (specifically the section "Sequencing reads input parameters") or see the [mixed_input documentation](./assorted-sub-workflows/mixed_input/README.md) for more information.
 
-## Credits
+#### BMTagger database
 
-This pipeline was originally designed as a reimplementation of metaWRAP (based on version 1.3.2; https://github.com/bxlab/metaWRAP). For further information please refer to the MetaWRAP paper: [MetaWRAP - a flexible pipeline for genome-resolved metagenomic data analysis](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0541-1)
+BMTagger removes contaminant host reads from metagenomics datasets during QC with `metawrap` (default). It requires a reference database.
+The default is set for the human T2T reference on the Sanger HPC, please adjust if you prefer a different reference or are an external user. Find instructions for making a BMTagger reference database in the tool's documentation: https://ftp.ncbi.nlm.nih.gov/pub/agarwala/bmtagger/README.bmtagger.txt
 
-## Support
+### Output
 
-For further information or help, don't hesitate to get in touch via [pam-informatics@sanger.ac.uk](mailto:pam-informatics@sanger.ac.uk).
+Results are written to `--outdir` (default: `./results`):
+
+```
+results/
+  metawrap_qc/
+    cleaned_reads/
+      <sample_ID>_clean_1.fastq.gz   # Host-depleted, adapter-trimmed reads
+      <sample_ID>_clean_2.fastq.gz
+    read_removal_statistics.csv      # Per-sample read removal statistics
+  host_reads/                        # Only when --publish_host_reads is set
+    <sample_ID>_host_1.fastq.gz
+    <sample_ID>_host_2.fastq.gz
+  <sample_ID>/
+    quast/
+      <sample_ID>_assembly_stats/    # QUAST assembly quality report
+    checkm1/                         # CheckM1 bin quality summary (when --checkm1 true, default)
+      <sample_ID>_<bin>checkm_summary.tsv
+    checkm2/                         # CheckM2 bin quality report (when --checkm1 false)
+      <sample_ID>_<bin>_checkm2_report.tsv
+    <bin>.fasta                      # Final bins and per-sample CheckM report
+    <sample_ID>_report.txt
+  bin_merging/
+    <sample_ID>_merge.log            # Bin merging log
+    <sample_ID>_best_bins.stats      # Best-bin selection statistics
+  final_summary.tsv                  # Cross-sample summary of all bins
+```
+
+Please note that although multiple binning tools run, not all bins generated by all tools are output as the final results. First all bins passing `--min_completeness` and `--max_contamination` are scored on completeness and contamination (scoring aligns with MIMAG standards, penalising contamination five times more than incompleteness). The highest scoring version of each bin is selected as 'best', in the case of multiple highest scoring bins, N50 is used as a decider for the 'best' bin. Only the best bins are published to `<outdir>/<sample_ID>`.
+
+### Parameters
+
+**Input/Output options**
+
+| Option       | Type   | Default     | Description                                                    |
+| ------------ | ------ | ----------- | -------------------------------------------------------------- |
+| `--manifest` | `path` | `""`        | Input manifest CSV with required header `ID,R1,R2` (required). |
+| `--outdir`   | `path` | `./results` | Directory where results are written.                           |
+
+---
+
+**Quality Control options**
+
+| Option                | Type      | Default                       | Description                                                       |
+| --------------------- | --------- | ----------------------------- | ----------------------------------------------------------------- |
+| `--qc`                | `string`  | `metawrap`                    | Run QC with `metawrap` or supply `skip`.                          |
+| `--bmtagger_db`       | `path`    | `/data/pam/software/bmtagger` | Path to directory containing BMTagger database.                   |
+| `--bmtagger_host`     | `path`    | `T2T-CHM13v2.0`               | Reference genome version used for host read filtering.            |
+| `--publish_host_data` | `boolean` | `false`                       | Publish the reads determined to originate from the host organism. |
+
+---
+
+**Assembly and Re-assembly options**
+
+| Option                    | Type      | Default | Description                                                                                                |
+| ------------------------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `--fastspades`            | `boolean` | `false` | Run SPAdes assembly module only.                                                                           |
+| `--metaspades`            | `boolean` | `true`  | Run metaSPAdes assembly.                                                                                   |
+| `--megahit`               | `boolean` | `true`  | Run MEGAHIT assembly.                                                                                      |
+| `--megahit_deterministic` | `boolean` | `false` | Run MEGAHIT assembly deterministically, (see [Determinism](#determinism)).                                 |
+| `--assembly_stats`        | `boolean` | `false` | Generate assembly statistics.                                                                              |
+| `--output_transposed`     | `boolean` | `false` | Output transposed QUAST reports.                                                                           |
+| `--lock_phred`            | `boolean` | `false` | Set PHRED quality offset to 33 for sra-lite and other read formats lacking quality scores (SPAdes option). |
+| `--skip_reassembly`       | `boolean` | `false` | Skip the bin reassembly step.                                                                              |
+| `--strict_max`            | `int`     | `2`     | Strict bin mismatch threshold.                                                                             |
+| `--permissive_max`        | `int`     | `5`     | Permissive bin mismatch threshold.                                                                         |
+| `--min_completeness`      | `float`   | `50`    | Minimum completeness threshold (%).                                                                        |
+| `--max_contamination`     | `float`   | `5`     | Maximum contamination threshold (%).                                                                       |
+
+---
+
+**Bin refinement options**
+
+| Option         | Type      | Default                                             | Description                                                                 |
+| -------------- | --------- | --------------------------------------------------- | --------------------------------------------------------------------------- |
+| `--checkm1`    | `boolean` | `true`                                              | Use CheckM1 for bin quality assessment. Set `false` to use CheckM2 instead. |
+| `--checkm2_db` | `path`    | `/data/pam/software/checkm2_db/uniref100.KO.1.dmnd` | Path to CheckM2 database (required if `--checkm1 false`).                   |
+
+---
+
+**Binning options**
+
+| Option                 | Type      | Default | Description                                                                                                                                                                        |
+| ---------------------- | --------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--keep_unbinned`      | `boolean` | `false` | Keep unbinned contigs.                                                                                                                                                             |
+| `--maxbin2_min_contig` | `int`     | `1000`  | Minimum threshold for contig size (kb) for MaxBin2. The lowest accepted value is 500.                                                                                              |
+| `--concoct_min_contig` | `int`     | `1000`  | Minimum threshold for contig size (kb) for CONCOCT. The lowest accepted value is 500.                                                                                              |
+| `--metabat_min_contig` | `int`     | `1500`  | Minimum threshold for contig size (kb) for metaBAT. The lowest accepted value is 1500.                                                                                             |
+| `--metabat1`           | `boolean` | `false` | Run metaBAT1 as opposed to default metaBAT2.                                                                                                                                       |
+| `--maxbin_markers`     | `int`     | `107`   | Marker set to choose from for MaxBin., options: 107 or 40. 107 marker genes are present in >95% of bacteria, or 40 marker gene sets that are universal among bacteria and archaea. |
+| `--bin_seed`           | `int`     | `1234`  | Set a seed for metaBAT1/2 and CONCOCT.                                                                                                                                             |
+
+---
+
+**Logging options**
+
+| Option              | Type      | Default | Description                 |
+| ------------------- | --------- | ------- | --------------------------- |
+| `--monochrome_logs` | `boolean` | `false` | Output logs in plain ASCII. |
+
+See `mags_maker --help` for the full parameter list including QC, assembly, binning, refinement, and reassembly sub-workflow parameters.
+
+### Advanced usage
+
+#### Determinism
+
+MEGAHIT can run deterministically (`--megahit_deterministic`) however this is not generally recommended as it requires restricting execution to a single CPU (default: 8). This increases MEGAHIT runtime by approximately 7.5×, which can extend the total pipeline runtime depending on the number and size of samples inputted. For example, assembling 20 low-depth metagenomic samples deterministically adds roughly 6 hours to the overall pipeline runtime.
+
+#### Running with only one assembler
+
+By default both metaSPAdes and MEGAHIT assemble the metagenome. To use **only metaSPAdes** turn off MEGAHIT with `--megahit false`. Similarly, to use **only MEGAHIT** turn off metaSPAdes with `--metaspades false`.
+
+### Dependencies
+
+Both BMTagger and taxonomic classification using CheckM2 require databases. Defaults are preconfigured for the Sanger HPC. For external users, please build or download these databases and supply paths to the relevant parameters.
+
+All other dependencies are containerised in publicly available Docker images.
+
+## Software versions
+
+Key software:
+
+| Software   | Version | Image                                                     |
+| ---------- | ------- | --------------------------------------------------------- |
+| TrimGalore | 0.4.4   | `quay.io/sangerpathogens/trimgalore:v0.4.4`               |
+| BMTagger   | 3.101   | `quay.io/biocontainers/bmtagger:3.101--h470a237_4`        |
+| metaSPAdes | 3.15.5  | `quay.io/biocontainers/spades:3.15.5--h95f258a_1`         |
+| MEGAHIT    | 1.2.9   | `quay.io/biocontainers/megahit:1.2.9--h5ca1c30_6`         |
+| CheckM     | 1.2.4   | `quay.io/biocontainers/checkm-genome:1.2.4--pyhdfd78af_0` |
+| CheckM2    | 1.0.2   | `quay.io/biocontainers/checkm2:1.0.2--pyh7cba7a3_0`       |
+
+See `assorted-sub-workflows/mags_maker/*/modules/` for pinned container versions.
+
+## Troubleshooting
+
+- **Instability and I/O Errors**: Unpredictble/ transient run errors may occur when running large batches through this pipeline - it is recommended to run in batches of 100 or fewer to avoid this behaviour.
+- **BMTagger database not found**: ensure the BMTagger database is available at the configured path. On the Sanger HPC the default path is pre-configured.
+- **Assembly fails with insufficient memory**: metaSPAdes is memory-intensive. Adjust the resource labels via a custom config or use only MEGAHIT for low-memory runs.
+- **Samples fail assembly**: Check if your input reads lack quality scores (e.g. sra-lite) and if so use `--lock_phred` option.
+- **Resuming a failed run**: add `-resume` to your command to restart from cached intermediate results.
+
+For further help, check `.nextflow.log` and the per-process `.command.log` logs in the `work/` directory.
+
+Sanger users may find [this page](https://ssg-confluence.internal.sanger.ac.uk/spaces/PaMI/pages/181078206/General+pipeline+info#Generalpipelineinfo-Troubleshootingafailedpipelinerunandsendingabugreport) useful for troubleshooting Nextflow pipeline runs.
+
+## Issues and Contributions
+
+**GitHub users:** if you find an issue with this pipeline, or would like to suggest an improvement, please log an issue or open a pull request on this repository.
+
+**Sanger users:** if you need internal support, you can raise an issue on the PAM Freshservice portal: https://sanger.freshservice.com/support/catalog/items/426
