@@ -9,6 +9,9 @@
     }
   },
   "overwrite_param": {
-    "none": {}
+    "checkm1": {
+      "default": "true",
+      "help_text": "Assess quality using CheckM rather than CheckM2."
+    }
   }
 }
