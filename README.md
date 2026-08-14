@@ -126,7 +126,8 @@ results/
     quast/
       <sample_ID>_assembly_stats/      # QUAST assembly quality report
     checkm1/                           # CheckM1 bin quality summary (when --checkm1 true, default)
-      <sample_ID>_<bin>checkm_summary.tsv
+      <sample_ID>_<bin>_checkm_report.tsv
+      <sample_ID>_<binner>_checkm_summary.tsv
     checkm2/                           # CheckM2 bin quality report (when --checkm1 false)
       <sample_ID>_<bin>_checkm2_report.tsv
     <sample_ID>_best_bins/             # Final bins
