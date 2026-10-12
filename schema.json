@@ -1,6 +1,12 @@
 {
   "pipeline": "Base schema",
   "params": {
+    "Entrypoints": {
+       "qc": {
+        "default": "metawrap",
+        "help_text": "Choose the preprocessing workflow to use within the pipeline. Choices: [metawrap,skip]"
+      }
+    },
     "Logging options": {
       "monochrome_logs": {
         "default": "false",
