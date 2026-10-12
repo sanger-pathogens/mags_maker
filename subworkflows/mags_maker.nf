@@ -67,6 +67,12 @@ workflow MAGS_MAKER {
             break
 
         case "assembly":
+
+            if (!params.publish_unbinned_contigs) { 
+                error "When --pipeline_termination: ${params.pipeline_termination} --publish_unbinned_contigs must be true"
+                System.exit(1)
+            }
+
             METAWRAP_ASSEMBLE(ready_reads)
             | set { contigs }
 
