@@ -33,28 +33,50 @@ workflow MAGS_MAKER {
 
     }
 
-    METAWRAP_ASSEMBLE(ready_reads)
-    | set { contigs }
+    switch (params.pipeline_termination) {
+        case [null, "null"]:
+            METAWRAP_ASSEMBLE(ready_reads)
+            | set { contigs }
 
-    METAWRAP_BINNING(contigs, ready_reads)
-    | set { bins }
+            METAWRAP_BINNING(contigs, ready_reads)
+            | set { bins }
 
-    METAWRAP_BIN_REFINEMENT(bins, ready_reads)
-    | set { refined_bins }
-    
-    if (!params.skip_reassembly) {
-        METAWRAP_REASSEMBLY(refined_bins, ready_reads)
-        | set { final_bins }
-    } else {
-        refined_bins
-        | set { final_bins }
+            METAWRAP_BIN_REFINEMENT(bins, ready_reads)
+            | set { refined_bins }
+            
+            if (!params.skip_reassembly) {
+                METAWRAP_REASSEMBLY(refined_bins, ready_reads)
+                | set { final_bins }
+            } else {
+                refined_bins
+                | set { final_bins }
+            }
+
+            PUBLISH_RESULTS(final_bins)
+
+            final_bins
+            | map { meta, fastas, checkmReport -> [checkmReport]}
+            | collect
+            | SUMMARY
+
+
+
+            METAWRAP_QC(reads_ch)
+            | set { ready_reads }
+
+            break
+
+        case "assembly":
+            METAWRAP_ASSEMBLE(ready_reads)
+            | set { contigs }
+
+            break
+        
+        default:
+            log.error("input --pipeline_termination: ${params.pipeline_termination} was not one of null|assembly")
+
     }
 
-    PUBLISH_RESULTS(final_bins)
 
-    final_bins
-    | map { meta, fastas, checkmReport -> [checkmReport]}
-    | collect
-    | SUMMARY
 
 }

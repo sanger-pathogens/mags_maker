@@ -2,9 +2,13 @@
   "pipeline": "Base schema",
   "params": {
     "Entrypoints": {
-       "qc": {
+      "qc": {
         "default": "metawrap",
-        "help_text": "Choose the preprocessing workflow to use within the pipeline. Choices: [metawrap,skip]"
+        "help_text": "Choose the preprocessing workflow to use within the pipeline. Choices: [metawrap, skip]"
+      },
+      "pipeline_termination": {
+        "default": "null",
+        "help_text": "Choose which subworkflow to terminate the pipeline. Pipeline stages: metawrap_qc > assembly > binning > bin_refinenment > reassembly. Choices [null, assembly]"
       }
     },
     "Logging options": {
