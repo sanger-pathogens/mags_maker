@@ -216,6 +216,10 @@ See `mags_maker --help` for the full parameter list including QC, assembly, binn
 
 ### Advanced usage
 
+#### Running only certain subworkflows
+
+The pipeline has a parameter to terminate the pipeline early if they only want to run selected subworkflows. The user can supply `--pipeline_termination` followed by the last subworkflow that they wish to run. Options currently supported include `null` (default), or `assembly`. If `assembly` is selected then the pipeline will run assembly only then terminate. This option can only be used if `--publish_unbinned_contigs true` is used. This is to prevent users from running this stage and obtaining no output. If `null` is selected then the entire pipeline runs end-to-end.
+
 #### Determinism
 
 MEGAHIT can run deterministically (`--megahit_deterministic`) however this is not generally recommended as it requires restricting execution to a single CPU (default: 8). This increases MEGAHIT runtime by approximately 7.5×, which can extend the total pipeline runtime depending on the number and size of samples inputted. For example, assembling 20 low-depth metagenomic samples deterministically adds roughly 6 hours to the overall pipeline runtime.
