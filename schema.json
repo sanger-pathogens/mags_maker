@@ -8,7 +8,7 @@
       },
       "pipeline_termination": {
         "default": "null",
-        "help_text": "Choose which subworkflow to terminate the pipeline. Pipeline stages: metawrap_qc > assembly > binning > bin_refinenment > reassembly. Choices [null, assembly]"
+        "help_text": "Choose to terminate the pipeline before binning. Choices [null, assembly]"
       }
     },
     "Logging options": {
